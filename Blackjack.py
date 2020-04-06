@@ -57,6 +57,8 @@ class Hand:
     def add_card(self, card):
         self.cards.append(card)
         self.value += values.get(card.rank)
+        if card.rank == "Ace":
+            self.aces += 1
     '''
     Use deck.deal()?
 
@@ -66,11 +68,9 @@ class Hand:
     '''
 
     def adjust_for_aces(self):
-        if self.value > 21: # TODO May not be needed as this may be the condition by which the method is called
-            num_aces = self.aces # TODO have some counter of how many aces have been changed? Move while loop checking value, to hit()
-            while num_aces > 0 and value > 21:
-                value -= 10
-                num_aces -= 1
+        while self.aces > 0 and self.value > 21:
+            self.value -= 10
+            self.aces -= 1
         '''
         if value > 21
         num_aces = self.aces
@@ -167,56 +167,36 @@ def show_all(player, dealer):
 
     print("\n")
 
-# def find_ending_scenario(player, dealer):
-#     if player.value > 21:
-#         player_busts()
-#     elif dealer.value > 21:
-#         dealer_busts()
-#     else:
-#         if player.value > dealer.value:
-#             player_wins()
-#         elif player.value < dealer.value:
-#             dealer_wins()
-#         elif player.value == dealer.value:
-#             push()
-
 
 def bust(hand):
     if hand.value > 21:
-        return True
+        is_bust = True
+        hand.adjust_for_aces()
+        if hand.value > 21:
+            return True
+        else:
+            return False
     else:
         return False
 
-# TODO
 def player_busts(chips):
     chips.lose_bet()
     print("The player has bust!!! The dealer wins!")
 
-# TODO
 def player_wins(chips):
     chips.win_bet()
     print("The player has won!!!")
 
-# TODO
 def dealer_busts(chips):
     chips.win_bet()
-    print("The dealer has bust!!! The player wins!")
-
-#TODO 
+    print("The dealer has bust!!! The player wins!") 
 def dealer_wins(chips):
     chips.lose_bet()
     print("The dealer has won!!!")
-
-# TODO 
+ 
 def push(chips):
     chips.push_bet()
     print("It is a draw!!! The bet is pushed!")
-
-# card = Card('Hearts', 'Two')
-
-# deck = Deck()
-
-# print(deck)
 
 
 while True:
@@ -288,7 +268,7 @@ while True:
     # Ask to play again
     choice = ""
     while not(choice == 'yes' or choice == 'no'):
-        choice = input("Do you wish to play again? Enter yes/no").lower()
+        choice = input("Do you wish to play again? Enter 'yes' or 'no': ").lower()
 
     if choice == 'yes':
         continue

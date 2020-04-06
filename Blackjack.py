@@ -1,18 +1,10 @@
-'''
-Blackjack
-Author: Keir McGlinn-Shaw
-Verions 0.1
-'''
-
-
-# Need:
-# Deck of cards
-#   Use import random to shuffle the pack
-# Collection of chips
-# Player
-# Dealer
-
 import random
+
+# '''
+# Blackjack
+# Author: Keir McGlinn-Shaw
+# Verions 0.1
+# '''
 
 # Set to store the values of all suits in a deck of cards
 suits = ('Hearts', 'Diamonds', 'Spades', 'Clubs')
@@ -51,12 +43,6 @@ class Deck:
         random.shuffle(self.deck)
 
     def deal(self):
-        # hand = []
-        # for i in range(2):
-        #     hand.append(random.choice(self.deck))
-
-        # return hand
-        
         card = random.choice(self.deck)
         self.deck.remove(card)
         return card
@@ -70,6 +56,7 @@ class Hand:
 
     def add_card(self, card):
         self.cards.append(card)
+        self.value += values.get(card.rank)
     '''
     Use deck.deal()?
 
@@ -106,14 +93,18 @@ class Chips:
         self.bet = 0
 
     def win_bet(self):
-        pass
+        self.total += self.bet
+        self.bet = 0
 
     def lose_bet(self):
-        pass
+        self.total -= self.bet
+        self.bet = 0
 
+    def push_bet(self):
+        self.bet = 0
+        
 
 # Functions
-
 
 def take_bet(): # TODO Does this need to take a Chips object as an argument?
     incorrect = True
@@ -124,7 +115,7 @@ def take_bet(): # TODO Does this need to take a Chips object as an argument?
             print("That won't work. Please try again")
             continue
         else:
-            if bet > Chips.total:
+            if bet > chips.total:
                 print("You don't have enough chips for that bet. Try again")
                 continue
             else:
@@ -142,7 +133,7 @@ def hit_or_stand(deck, hand):
 
     choice = ""
 
-    while choice != 'hit' or choice != 'stand':
+    while not (choice == 'hit' or choice == 'stand'):
         choice = input("Please enter 'hit' or 'stand' to either hit or stand: ").lower()
 
     if choice == 'hit':
@@ -154,42 +145,40 @@ def hit_or_stand(deck, hand):
 def show_some(player, dealer):
     # Print all but the first of the dealer's cards
     print("Dealer's deck: [Hidden card] ", end="")
-    for i in range(1, len(dealer.deck)):
-        print(f" [{dealer.deck[i]}] ", end="")
+    for i in range(1, len(dealer.cards)):
+        print(f" [{dealer.cards[i]}] ", end="")
     
     print("\n\nPlayer's deck: ", end="")
-    for card in player:
+    for card in player.cards:
         print(f" [{card}] ", end="")
 
     print("\n")
 
 def show_all(player, dealer):
     print("\n\nDealer's deck: ", end="")
-    for card in dealer:
+    for card in dealer.cards:
         print(f" [{card}] ", end="")
     
     print("\n")
 
     print("\n\nPlayer's deck: ", end="")
-    for card in player:
+    for card in player.cards:
         print(f" [{card}] ", end="")
 
     print("\n")
 
-
-
-def find_ending_scenario(player, dealer):
-    if player.value > 21:
-        player_busts()
-    elif dealer.value > 21:
-        dealer_busts()
-    else:
-        if player.value > dealer.value:
-            player_wins()
-        elif player.value < dealer.value:
-            dealer_wins()
-        elif player.value == dealer.value:
-            push()
+# def find_ending_scenario(player, dealer):
+#     if player.value > 21:
+#         player_busts()
+#     elif dealer.value > 21:
+#         dealer_busts()
+#     else:
+#         if player.value > dealer.value:
+#             player_wins()
+#         elif player.value < dealer.value:
+#             dealer_wins()
+#         elif player.value == dealer.value:
+#             push()
 
 
 def bust(hand):
@@ -199,60 +188,60 @@ def bust(hand):
         return False
 
 # TODO
-def player_busts(player):
-    # if player.value > 21:
-    #     return True
-    # else:
-    #     return False
-    # Print statement to show that the player has bust.
-
-    pass
+def player_busts(chips):
+    chips.lose_bet()
+    print("The player has bust!!! The dealer wins!")
 
 # TODO
-def player_wins():
-    pass
+def player_wins(chips):
+    chips.win_bet()
+    print("The player has won!!!")
 
 # TODO
-def dealer_busts():
-    pass
+def dealer_busts(chips):
+    chips.win_bet()
+    print("The dealer has bust!!! The player wins!")
 
 #TODO 
-def dealer_wins():
-    pass
+def dealer_wins(chips):
+    chips.lose_bet()
+    print("The dealer has won!!!")
 
 # TODO 
-def push():
-    pass
+def push(chips):
+    chips.push_bet()
+    print("It is a draw!!! The bet is pushed!")
 
 # card = Card('Hearts', 'Two')
 
-deck = Deck()
+# deck = Deck()
 
-print(deck)
+# print(deck)
 
 
 while True:
     # Print an opening statement
+    playing = True
     print("Welcome to Blackjack!\n\In this game you will play 1v1 the computer which will act as the dealer")
     
     # Create & shuffle the deck, deal two cards to each player
     deck = Deck()
     player = Hand()
     dealer = Hand()
-    player_bust = False
+    # player_bust = False
 
     for i in range(2):
         player.add_card(deck.deal())
-        dealer.add_card(deck.dea())
+        dealer.add_card(deck.deal())
         
     # Set up the Player's chips
     chips = Chips()
     
     # Prompt the Player for their bet
-    player_bet = take_bet()
+    chips.bet = take_bet()
     
     # Show cards (but keep one dealer card hidden)
-    show_some()
+    show_some(player, dealer)
     
     while playing:  # recall this variable from our hit_or_stand function
         
@@ -260,7 +249,7 @@ while True:
         hit_or_stand(deck, player)
         
         # Show cards (but keep one dealer card hidden)
-        show_some()
+        show_some(player, dealer)
         
         # If player's hand exceeds 21, run player_busts() and break out of loop
         if bust(player):
@@ -268,23 +257,22 @@ while True:
 
     # If Player hasn't busted, play Dealer's hand until Dealer reaches 17
     if bust(player):
-        # Run player_bust end scenario # TODO
-        pass
+        player_busts(chips)
     else:
-        show_all()
+        show_all(player, dealer)
         while dealer.value < 17:
             hit(deck, dealer)
             print("Dealer hits. Hands now show: ")
-            show_all()
+            show_all(player, dealer)
         else:
             if bust(dealer):
-                player_wins()
+                dealer_busts(chips)
             elif player.value > dealer.value:
-                player_wins()
+                player_wins(chips)
             elif player.value < dealer.value:
-                dealer_wins()
-            elif player.value == dealer.value():
-                push()
+                dealer_wins(chips)
+            elif player.value == dealer.value:
+                push(chips)
             else:
                 print("Debugging error. Error calculating the final winner") # TODO Remove
             
@@ -294,8 +282,15 @@ while True:
         # Run different winning scenarios
         
     
-    # Inform Player of their chips total 
+    # Inform Player of their chips total
+    print(f"Your total chips after this round are: {chips.total}") 
     
     # Ask to play again
+    choice = ""
+    while not(choice == 'yes' or choice == 'no'):
+        choice = input("Do you wish to play again? Enter yes/no").lower()
 
+    if choice == 'yes':
+        continue
+    else:
         break

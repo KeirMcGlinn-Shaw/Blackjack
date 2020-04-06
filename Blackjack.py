@@ -1,10 +1,10 @@
 import random
 
-# '''
-# Blackjack
-# Author: Keir McGlinn-Shaw
-# Verions 0.1
-# '''
+'''
+Blackjack
+Author: Keir McGlinn-Shaw
+Verions 0.1
+'''
 
 # Set to store the values of all suits in a deck of cards
 suits = ('Hearts', 'Diamonds', 'Spades', 'Clubs')
@@ -59,33 +59,11 @@ class Hand:
         self.value += values.get(card.rank)
         if card.rank == "Ace":
             self.aces += 1
-    '''
-    Use deck.deal()?
-
-    Take random card from deck?
-
-    Need to pass a deck object into init?
-    '''
 
     def adjust_for_aces(self):
         while self.aces > 0 and self.value > 21:
             self.value -= 10
             self.aces -= 1
-        '''
-        if value > 21
-        num_aces = self.aces
-        while num_aces > 0 and value > 21:
-            value -= 10
-            num_aces -= 1
-
-
-        OR
-
-        if value > 21:
-            if self.aces == 1:
-                self.value -= 10
-
-        '''
 
 class Chips:
     def __init__(self):
@@ -179,6 +157,8 @@ def bust(hand):
     else:
         return False
 
+# TODO Add output of all cards to the print statements for the game completion statements
+
 def player_busts(chips):
     chips.lose_bet()
     print("The player has bust!!! The dealer wins!")
@@ -223,7 +203,7 @@ while True:
     # Show cards (but keep one dealer card hidden)
     show_some(player, dealer)
     
-    while playing:  # recall this variable from our hit_or_stand function
+    while playing:
         
         # Prompt for Player to Hit or Stand
         hit_or_stand(deck, player)
@@ -245,6 +225,7 @@ while True:
             print("Dealer hits. Hands now show: ")
             show_all(player, dealer)
         else:
+            # Run different winning scenarios
             if bust(dealer):
                 dealer_busts(chips)
             elif player.value > dealer.value:
@@ -254,13 +235,7 @@ while True:
             elif player.value == dealer.value:
                 push(chips)
             else:
-                print("Debugging error. Error calculating the final winner") # TODO Remove
-            
-    
-        # Show all cards
-    
-        # Run different winning scenarios
-        
+                print("Debugging error. Error calculating the final winner") # TODO Remove   
     
     # Inform Player of their chips total
     print(f"Your total chips after this round are: {chips.total}") 

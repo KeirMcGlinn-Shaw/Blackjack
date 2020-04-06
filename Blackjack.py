@@ -57,8 +57,9 @@ class Deck:
 
         # return hand
         
-        # TODO should remove the card from the deck as well
-        return random.choice(self.deck)
+        card = random.choice(self.deck)
+        self.deck.remove(card)
+        return card
 
 # Class which represents the players hand of cards in this game
 class Hand:
@@ -142,7 +143,7 @@ def hit_or_stand(deck, hand):
     choice = ""
 
     while choice != 'hit' or choice != 'stand':
-        choice = input("Please enter 'hit' or 'stand' to either hit or stand").lower()
+        choice = input("Please enter 'hit' or 'stand' to either hit or stand: ").lower()
 
     if choice == 'hit':
         hit(deck, hand)
@@ -151,26 +152,75 @@ def hit_or_stand(deck, hand):
 
 
 def show_some(player, dealer):
-    pass
+    # Print all but the first of the dealer's cards
+    print("Dealer's deck: [Hidden card] ", end="")
+    for i in range(1, len(dealer.deck)):
+        print(f" [{dealer.deck[i]}] ", end="")
+    
+    print("\n\nPlayer's deck: ", end="")
+    for card in player:
+        print(f" [{card}] ", end="")
+
+    print("\n")
 
 def show_all(player, dealer):
+    print("\n\nDealer's deck: ", end="")
+    for card in dealer:
+        print(f" [{card}] ", end="")
+    
+    print("\n")
+
+    print("\n\nPlayer's deck: ", end="")
+    for card in player:
+        print(f" [{card}] ", end="")
+
+    print("\n")
+
+
+
+def find_ending_scenario(player, dealer):
+    if player.value > 21:
+        player_busts()
+    elif dealer.value > 21:
+        dealer_busts()
+    else:
+        if player.value > dealer.value:
+            player_wins()
+        elif player.value < dealer.value:
+            dealer_wins()
+        elif player.value == dealer.value:
+            push()
+
+
+def bust(hand):
+    if hand.value > 21:
+        return True
+    else:
+        return False
+
+# TODO
+def player_busts(player):
+    # if player.value > 21:
+    #     return True
+    # else:
+    #     return False
+    # Print statement to show that the player has bust.
+
     pass
 
-
-
-
-def player_busts():
-    pass
-
+# TODO
 def player_wins():
     pass
 
+# TODO
 def dealer_busts():
     pass
-    
+
+#TODO 
 def dealer_wins():
     pass
-    
+
+# TODO 
 def push():
     pass
 
@@ -179,3 +229,73 @@ def push():
 deck = Deck()
 
 print(deck)
+
+
+while True:
+    # Print an opening statement
+    print("Welcome to Blackjack!\n\In this game you will play 1v1 the computer which will act as the dealer")
+    
+    # Create & shuffle the deck, deal two cards to each player
+    deck = Deck()
+    player = Hand()
+    dealer = Hand()
+    player_bust = False
+
+    for i in range(2):
+        player.add_card(deck.deal())
+        dealer.add_card(deck.dea())
+        
+    # Set up the Player's chips
+    chips = Chips()
+    
+    # Prompt the Player for their bet
+    player_bet = take_bet()
+    
+    # Show cards (but keep one dealer card hidden)
+    show_some()
+    
+    while playing:  # recall this variable from our hit_or_stand function
+        
+        # Prompt for Player to Hit or Stand
+        hit_or_stand(deck, player)
+        
+        # Show cards (but keep one dealer card hidden)
+        show_some()
+        
+        # If player's hand exceeds 21, run player_busts() and break out of loop
+        if bust(player):
+            break
+
+    # If Player hasn't busted, play Dealer's hand until Dealer reaches 17
+    if bust(player):
+        # Run player_bust end scenario # TODO
+        pass
+    else:
+        show_all()
+        while dealer.value < 17:
+            hit(deck, dealer)
+            print("Dealer hits. Hands now show: ")
+            show_all()
+        else:
+            if bust(dealer):
+                player_wins()
+            elif player.value > dealer.value:
+                player_wins()
+            elif player.value < dealer.value:
+                dealer_wins()
+            elif player.value == dealer.value():
+                push()
+            else:
+                print("Debugging error. Error calculating the final winner") # TODO Remove
+            
+    
+        # Show all cards
+    
+        # Run different winning scenarios
+        
+    
+    # Inform Player of their chips total 
+    
+    # Ask to play again
+
+        break

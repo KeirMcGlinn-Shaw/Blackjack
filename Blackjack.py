@@ -3,7 +3,7 @@ import random
 '''
 Blackjack
 Author: Keir McGlinn-Shaw
-Verions 0.1
+Verion: 1.0
 '''
 
 # Set to store the values of all suits in a deck of cards

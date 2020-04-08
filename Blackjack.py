@@ -1,5 +1,7 @@
 import random
-
+import platform
+import os
+import time
 '''
 Blackjack
 Author: Keir McGlinn-Shaw
@@ -17,6 +19,7 @@ values = {'Two':2, 'Three':3, 'Four':4, 'Five':5, 'Six':6, 'Seven':7, 'Eight':8,
 # TODO
 playing = True
 total_chips = 100
+
 
 # Class which represents a card in this game
 class Card:
@@ -37,14 +40,13 @@ class Deck:
                 self.deck.append(card)
                 
     def __str__(self):
-        return "\n".join(map(str, self.deck))
+        return "The deck:\n" + "\n".join(map(str, self.deck))
 
     def shuffle(self):
         random.shuffle(self.deck)
 
     def deal(self):
-        card = random.choice(self.deck)
-        self.deck.remove(card)
+        card = self.deck.pop()
         return card
 
 # Class which represents the players hand of cards in this game
@@ -55,8 +57,11 @@ class Hand:
         self.aces = 0
 
     def add_card(self, card):
+        # Append card argument to hand
         self.cards.append(card)
+        # Increment value from card's rank's value
         self.value += values.get(card.rank)
+        # Increment number of aces in hand if card is an Ace
         if card.rank == "Ace":
             self.aces += 1
 
@@ -84,27 +89,27 @@ class Chips:
 
 # Functions
 
-def take_bet(): # TODO Does this need to take a Chips object as an argument?
+def take_bet(chips): # TODO Does this need to take a Chips object as an argument?
     incorrect = True
     while incorrect:
         try:
-            bet = int(input("Please enter the amount you wish to bet: "))
+            chips.bet = int(input(f"Your total chisp are: {chips.total}\nPlease enter the amount you wish to bet: "))
         except ValueError:
             print("That won't work. Please try again")
             continue
         else:
-            if bet > chips.total:
+            if chips.bet > chips.total:
                 print("You don't have enough chips for that bet. Try again")
                 continue
             else:
                 print("Thank you")
                 incorrect = False
-    return bet
+    return chips.bet
 
 def hit(deck, hand):
     hand.add_card(deck.deal())
     if hand.value > 21:
-        hand.adjust_for_aces
+        hand.adjust_for_aces()
 
 def hit_or_stand(deck, hand):
     global playing
@@ -115,8 +120,10 @@ def hit_or_stand(deck, hand):
         choice = input("Please enter 'hit' or 'stand' to either hit or stand: ").lower()
 
     if choice == 'hit':
+        clear()
         hit(deck, hand)
     elif choice == 'stand':
+        clear()
         playing = False
 
 
@@ -169,7 +176,8 @@ def player_wins(chips):
 
 def dealer_busts(chips):
     chips.win_bet()
-    print("The dealer has bust!!! The player wins!") 
+    print("The dealer has bust!!! The player wins!")
+    
 def dealer_wins(chips):
     chips.lose_bet()
     print("The dealer has won!!!")
@@ -178,17 +186,36 @@ def push(chips):
     chips.push_bet()
     print("It is a draw!!! The bet is pushed!")
 
+# Function that will be used to clear the user's console. The behaviour for this function is set by define_clear()
+def clear():
+    pass
 
+# Function which defines the behaviour of clear(), based on what platform this program is running on
+# For this function, I had some help:
+#   Sources: https://www.csestack.org/clear-python-interpreter-console
+#            https://stackoverflow.com/questions/1854/what-os-am-i-running-on
+
+def define_clear():
+    sys_name = platform.system() # Gets a string value representing the platform
+    if sys_name == "Linux": # If the program is running on a Linux platform
+        return lambda: os.system('clear') # Return this lambda function, which will for the behaviour of clear()
+    elif sys_name == "Windows": # If the program is running on a Windows platform
+        return lambda: os.system('cls') # Return this lambda function, which will for the behaviour of clear()
+
+
+# TODO Change code so that chips do not reset between rounds
 while True:
+    clear = define_clear() # Set the behaviour of clear() based on the platform running this program
     # Print an opening statement
     playing = True
-    print("Welcome to Blackjack!\n\In this game you will play 1v1 the computer which will act as the dealer")
+    clear() # Clear the console
+    print("Welcome to Blackjack!\n\nIn this game you will play 1v1 the computer which will act as the dealer")
     
     # Create & shuffle the deck, deal two cards to each player
     deck = Deck()
+    deck.shuffle()
     player = Hand()
     dealer = Hand()
-    # player_bust = False
 
     for i in range(2):
         player.add_card(deck.deal())
@@ -198,7 +225,8 @@ while True:
     chips = Chips()
     
     # Prompt the Player for their bet
-    chips.bet = take_bet()
+    chips.bet = take_bet(chips)
+    clear()
     
     # Show cards (but keep one dealer card hidden)
     show_some(player, dealer)
@@ -221,8 +249,12 @@ while True:
     else:
         show_all(player, dealer)
         while dealer.value < 17:
+            
             hit(deck, dealer)
             print("Dealer hits. Hands now show: ")
+            time.sleep(1)
+            clear()
+            
             show_all(player, dealer)
         else:
             # Run different winning scenarios
@@ -232,10 +264,8 @@ while True:
                 player_wins(chips)
             elif player.value < dealer.value:
                 dealer_wins(chips)
-            elif player.value == dealer.value:
-                push(chips)
             else:
-                print("Debugging error. Error calculating the final winner") # TODO Remove   
+                push(chips) 
     
     # Inform Player of their chips total
     print(f"Your total chips after this round are: {chips.total}") 
@@ -246,6 +276,7 @@ while True:
         choice = input("Do you wish to play again? Enter 'yes' or 'no': ").lower()
 
     if choice == 'yes':
+        playing = True
         continue
     else:
         break

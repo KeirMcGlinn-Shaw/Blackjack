@@ -5,7 +5,7 @@ import time
 '''
 Blackjack
 Author: Keir McGlinn-Shaw
-Verion: 1.0
+Verion: 2.0
 '''
 
 # Set to store the values of all suits in a deck of cards
